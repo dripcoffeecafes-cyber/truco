@@ -7,9 +7,30 @@
 const RULES = {
   truco: {
     title: 'Truco',
-    subtitle: 'Gaudério (24 tentos) e Paulista (12 tentos)',
+    subtitle: 'Paulista (12 tentos) e Gaudério (24 tentos)',
     color: '#e5383b',
     sections: [
+      {
+        t: 'Truco Paulista — o básico',
+        h: `
+<p><b>Baralho:</b> 40 cartas (sem 8, 9, 10 e coringas) — no paulista joga-se com o baralho francês comum.</p>
+<p><b>Objetivo:</b> fazer <b>12 tentos</b>. Cada mão vale 1 tento; vence a mão quem ganha 2 das 3 vazas.</p>
+<p><b>Vira e manilha:</b> após distribuir, vira-se uma carta. A manilha é a carta <b>seguinte</b> à vira (vira 4 → manilha 5; vira 3 → manilha 4). Ordem das manilhas: <b>♣ Paus (zap)</b> &gt; <b>♥ Copas</b> &gt; <b>♠ Espadas</b> &gt; <b>♦ Ouros (pica-fumo)</b>.</p>
+<div class="cardrank"><span class="hi">Manilha ♣</span><span class="hi r">Manilha ♥</span><span class="hi">Manilha ♠</span><span class="hi r">Manilha ♦</span><span>3</span><span>2</span><span>A</span><span>K</span><span>J</span><span>Q</span><span>7</span><span>6</span><span>5</span><span>4</span></div>
+<p>Repare: valete (J) vale mais que a dama (Q).</p>`
+      },
+      {
+        t: 'Truco Paulista — apostas, empates e mão de 11',
+        h: `
+<table><tr><th>Pedido</th><th>Aceito</th><th>Recusado</th></tr>
+<tr><td>Truco</td><td>3</td><td>1 para quem pediu</td></tr>
+<tr><td>Seis</td><td>6</td><td>3 para quem pediu</td></tr>
+<tr><td>Nove</td><td>9</td><td>6 para quem pediu</td></tr>
+<tr><td>Doze</td><td>12</td><td>9 para quem pediu</td></tr></table>
+<p><b>Empates:</b> se a 1ª vaza empata ("empacha"), quem ganhar a 2ª leva a mão. Se a 2ª empata, vence quem ganhou a 1ª. Se todas empatam, ninguém pontua.</p>
+<p><b>Mão de 11:</b> a dupla com 11 tentos pode olhar as cartas do parceiro e decidir jogar (mão vale 3) ou correr (adversário ganha 1). Não se pode trucar na mão de 11.</p>
+<p><b>Mão de ferro (11 x 11):</b> joga-se com as cartas viradas, sem olhar, valendo 1 tento.</p>`
+      },
       {
         t: 'Truco Gaudério — o básico',
         h: `
@@ -68,27 +89,6 @@ const RULES = {
 <tr><td>Contraflor não querida ("me achico")</td><td>4 tentos (3 da flor + 1)</td></tr>
 <tr><td>Contraflor e o resto</td><td>o que falta para fechar a partida</td></tr></table>
 <p>Os pontos da flor contam como o envido (três cartas + 20). Quem não canta a flor e é descoberto perde os tentos dela para o adversário.</p>`
-      },
-      {
-        t: 'Truco Paulista — o básico',
-        h: `
-<p><b>Baralho:</b> 40 cartas (sem 8, 9, 10 e coringas) — no paulista joga-se com o baralho francês comum.</p>
-<p><b>Objetivo:</b> fazer <b>12 tentos</b>. Cada mão vale 1 tento; vence a mão quem ganha 2 das 3 vazas.</p>
-<p><b>Vira e manilha:</b> após distribuir, vira-se uma carta. A manilha é a carta <b>seguinte</b> à vira (vira 4 → manilha 5; vira 3 → manilha 4). Ordem das manilhas: <b>♣ Paus (zap)</b> &gt; <b>♥ Copas</b> &gt; <b>♠ Espadas</b> &gt; <b>♦ Ouros (pica-fumo)</b>.</p>
-<div class="cardrank"><span class="hi">Manilha ♣</span><span class="hi r">Manilha ♥</span><span class="hi">Manilha ♠</span><span class="hi r">Manilha ♦</span><span>3</span><span>2</span><span>A</span><span>K</span><span>J</span><span>Q</span><span>7</span><span>6</span><span>5</span><span>4</span></div>
-<p>Repare: valete (J) vale mais que a dama (Q).</p>`
-      },
-      {
-        t: 'Truco Paulista — apostas, empates e mão de 11',
-        h: `
-<table><tr><th>Pedido</th><th>Aceito</th><th>Recusado</th></tr>
-<tr><td>Truco</td><td>3</td><td>1 para quem pediu</td></tr>
-<tr><td>Seis</td><td>6</td><td>3 para quem pediu</td></tr>
-<tr><td>Nove</td><td>9</td><td>6 para quem pediu</td></tr>
-<tr><td>Doze</td><td>12</td><td>9 para quem pediu</td></tr></table>
-<p><b>Empates:</b> se a 1ª vaza empata ("empacha"), quem ganhar a 2ª leva a mão. Se a 2ª empata, vence quem ganhou a 1ª. Se todas empatam, ninguém pontua.</p>
-<p><b>Mão de 11:</b> a dupla com 11 tentos pode olhar as cartas do parceiro e decidir jogar (mão vale 3) ou correr (adversário ganha 1). Não se pode trucar na mão de 11.</p>
-<p><b>Mão de ferro (11 x 11):</b> joga-se com as cartas viradas, sem olhar, valendo 1 tento.</p>`
       }
     ]
   },

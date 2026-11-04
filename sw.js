@@ -1,5 +1,5 @@
 /* Service worker — deixa o app funcionar offline (cache do shell). */
-const VERSION = 'carteado-v1';
+const VERSION = "carteado-v2";
 const FILES = [
   './', './index.html', './css/style.css', './js/app.js', './js/fx.js', './js/rules.js',
   './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'

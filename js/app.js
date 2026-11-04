@@ -29,7 +29,7 @@
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
   const GAMES = {
-    truco: { name: 'Truco', sub: 'Gaudério ou Paulista', cls: 'truco', color: '#e5383b', teams: true },
+    truco: { name: 'Truco', sub: 'Até 12 · mão de 11', cls: 'truco', color: '#e5383b', teams: true },
     pontinho: { name: 'Pontinho', sub: '100 pontos · quem zera estoura', cls: 'pontinho', color: '#3a86ff', teams: false },
     tressete: { name: 'Três Sete', sub: 'Vazas em dupla · 21 pontos', cls: 'tressete', color: '#ff8c42', teams: true },
     canastra: { name: 'Canastra', sub: 'Duplas · 3.000 pontos', cls: 'canastra', color: '#9d4edd', teams: true }
@@ -110,8 +110,8 @@
     const recent = S.names.slice(0, 8);
     setup = {
       game,
-      variant: game === 'truco' ? 'gaucho' : null,
-      target: game === 'truco' ? 24 : game === 'tressete' ? 21 : game === 'canastra' ? 3000 : 100,
+      variant: game === 'truco' ? 'paulista' : null,
+      target: game === 'truco' ? 12 : game === 'tressete' ? 21 : game === 'canastra' ? 3000 : 100,
       teams: [{ name: 'Nós', players: ['', ''] }, { name: 'Eles', players: ['', ''] }],
       players: [recent[0] || '', recent[1] || '', recent[2] || '', recent[3] || ''].map(n => n)
     };
@@ -121,7 +121,7 @@
     let body = '';
     if (setup.game === 'truco') {
       body += `<div class="card dark mb"><div class="field"><label>Modalidade</label>
-        <div class="seg" data-seg="variant"><button data-v="gaucho" class="${setup.variant === 'gaucho' ? 'on' : ''}">Gaudério · 24</button><button data-v="paulista" class="${setup.variant === 'paulista' ? 'on' : ''}">Paulista · 12</button></div></div></div>`;
+        <div class="seg" data-seg="variant"><button data-v="paulista" class="${setup.variant === 'paulista' ? 'on' : ''}">Paulista · 12</button><button data-v="gaucho" class="${setup.variant === 'gaucho' ? 'on' : ''}">Gaudério · 24</button></div></div></div>`;
     }
     if (setup.game === 'tressete') {
       body += `<div class="card dark mb"><div class="field"><label>Partida até</label>
@@ -188,7 +188,8 @@
           pal = `<div class="palitos ${boas ? 'boas' : ''}">${palitos(boas ? s - 12 : s, 12)}</div>`;
           if (s >= 23) danger = 'danger';
         } else {
-          sub = s === 11 ? '<span class="sub hot">MÃO DE 11!</span>' : `<span class="sub">faltam ${12 - s}</span>`;
+          const ferro = m.scores[0] === 11 && m.scores[1] === 11;
+          sub = ferro ? '<span class="sub hot">🙈 ESCURA · vale 1</span>' : s === 11 ? '<span class="sub hot">MÃO DE 11 · sem truco</span>' : `<span class="sub">faltam ${12 - s}</span>`;
           pal = `<div class="palitos">${palitos(s, 12)}</div>`;
           if (s === 11) danger = 'danger';
         }
@@ -208,8 +209,11 @@
     if (m.game === 'truco') {
       const rows = m.variant === 'gaucho'
         ? [['Mão', 1], ['Truco', 2, 'truco'], ['Retruco', 3, 'truco'], ['Vale 4', 4, 'truco'], ['Envido', 2], ['Real envido', 3], ['Falta envido', 'falta'], ['Flor', 3, 'flor'], ['Contraflor', 6, 'flor'], ['Não quis / outro', 'custom'], ['−1 (errei)', -1]]
-        : [['Mão', 1], ['Truco', 3, 'truco'], ['Seis', 6, 'truco'], ['Nove', 9, 'truco'], ['Doze', 12, 'truco'], ['Correu do truco', 1], ['Correu do seis', 3], ['Correu do nove', 6], ['Outro valor', 'custom'], ['−1 (errei)', -1]];
-      actions = `<div class="actions">${rows.map(([label, v, kind]) => [0, 1].map(i =>
+        : [['Truco', 3, 'truco'], ['Seis', 6, 'truco'], ['Nove', 9, 'truco'], ['Doze', 12, 'truco'], ['−1 (errei)', -1]];
+      const hint = m.variant === 'paulista'
+        ? `<p class="center small muted mb">👆 Toque no quadro da dupla pra somar <b>1 tento</b>. Se correram do truco, toca o quadro (+1); do seis, toca Truco (+3); e assim por diante.</p>`
+        : `<p class="center small muted mb">👆 Toque no quadro da dupla pra somar <b>1 tento</b>.</p>`;
+      actions = hint + `<div class="actions">${rows.map(([label, v, kind]) => [0, 1].map(i =>
         `<button class="chip t${i} ${kind === 'truco' ? 'hot' : ''} ${v === -1 ? 'minus' : ''}" data-pts="${v}" data-team="${i}" data-kind="${kind || ''}" data-label="${esc(label)}">${label}${typeof v === 'number' && v > 0 ? ` <small>+${v}</small>` : ''}</button>`).join('')).join('')}</div>`;
     } else if (m.game === 'tressete') {
       actions = `<button class="btn block big" data-hand>Registrar mão 🧮</button>
@@ -533,6 +537,7 @@
     const un = $('[data-undo]'); if (un) un.onclick = undo;
     const sd = $('[data-sound]'); if (sd) sd.onclick = () => { Sound.unlock(); const on = Sound.toggle(); sd.textContent = on ? '🔊' : '🔇'; if (on) Sound.point(); };
     const sg = $('[data-settings]'); if (sg) sg.onclick = settingsSheet;
+    if (S.match && S.match.game === 'truco') $$('[data-ts]').forEach(b => b.onclick = () => addPoints(+b.dataset.ts, 1, 'Mão'));
     $$('[data-pts]').forEach(b => b.onclick = () => {
       const team = +b.dataset.team, v = b.dataset.pts, label = b.dataset.label, kind = b.dataset.kind;
       if (v === 'custom') return customSheet(team);

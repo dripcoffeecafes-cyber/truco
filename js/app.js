@@ -23,9 +23,27 @@
 
   // ---------- estado ----------
   const KEY = 'carteado:v1';
-  const DEFAULT = { tab: 'home', view: 'home', match: null, history: [], names: [], rulesGame: 'truco' };
+  const DEFAULT = { tab: 'home', view: 'home', match: null, history: [], names: [], rulesGame: 'truco', tags: { adriano: 'aqui é Macho 💪' } };
   let S = load();
   function load() { try { return { ...DEFAULT, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch (e) { return { ...DEFAULT }; } }
+  // ---------- apelidos da turma ----------
+  const norm = n => String(n || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const tagOf = n => (S.tags || {})[norm(n)] || '';
+  const nm = n => `${esc(n)}${tagOf(n) ? ` <em class="tag">${esc(tagOf(n))}</em>` : ''}`;
+  const nmList = (list, sep = ' & ') => list.map(nm).join(sep);
+  function importTagsFromHash() {
+    const m = location.hash.match(/[#&]t=([^&]+)/); if (!m) return;
+    try {
+      const data = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(m[1])))));
+      S.tags = { ...(S.tags || {}), ...data }; save();
+      setTimeout(() => toast('🦗 Apelidos d\'Os Gafanhotos importados!', 2600), 400);
+    } catch (e) {}
+    history.replaceState(null, '', location.pathname);
+  }
+  function shareTagsLink() {
+    const code = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(S.tags || {})))));
+    return location.origin + location.pathname + '#t=' + code;
+  }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
   const GAMES = {
@@ -46,6 +64,20 @@
       <g transform="rotate(-14 60 64)"><rect x="24" y="22" width="56" height="78" rx="8" fill="url(#lg)" stroke="#1d1a14" stroke-width="2"/><path d="M52 44c-9-11-24-2-17 9 4 7 17 17 17 17s13-10 17-17c7-11-8-20-17-9z" fill="#e5383b"/></g>
       <g transform="rotate(12 70 60)"><rect x="46" y="18" width="56" height="78" rx="8" fill="url(#lg)" stroke="#1d1a14" stroke-width="2"/><path d="M74 36c-8 12-20 18-18 28 1 7 9 9 14 4-1 5-3 8-6 10h20c-3-2-5-5-6-10 5 5 13 3 14-4 2-10-10-16-18-28z" fill="#1d1a14"/></g>
       <circle cx="26" cy="96" r="9" fill="#f2b134" stroke="#b57d16" stroke-width="2"/><circle cx="40" cy="104" r="9" fill="#f2b134" stroke="#b57d16" stroke-width="2"/><circle cx="16" cy="108" r="9" fill="#ffd369" stroke="#b57d16" stroke-width="2"/></svg>`,
+    gafanhoto: `<svg viewBox="0 0 140 120"><defs><linearGradient id="gb" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#9be15d"/><stop offset="1" stop-color="#2e9e4f"/></linearGradient></defs>
+      <g transform="rotate(-10 104 40)"><rect x="88" y="14" width="34" height="48" rx="5" fill="#fff7e6" stroke="#1d1a14" stroke-width="2.5"/><path d="M105 28c-6-7-15-1-11 6 3 4 11 10 11 10s8-6 11-10c4-7-5-13-11-6z" fill="#e5383b"/></g>
+      <path d="M30 72 Q20 40 46 30 L58 30 Q42 46 52 70z" fill="#2e9e4f" stroke="#14532d" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M28 78 L10 104 M10 104 h14" stroke="#14532d" stroke-width="5" stroke-linecap="round" fill="none"/>
+      <ellipse cx="62" cy="76" rx="40" ry="17" fill="url(#gb)" stroke="#14532d" stroke-width="2.5"/>
+      <path d="M36 70 q10 -6 20 0 M50 70 q10 -6 20 0" stroke="#14532d" stroke-width="2" fill="none" opacity=".5"/>
+      <path d="M70 90 l-6 20 M84 88 l4 20 M56 90 l-12 18" stroke="#14532d" stroke-width="4" stroke-linecap="round"/>
+      <path d="M92 70 L102 52" stroke="#14532d" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="102" cy="72" r="16" fill="url(#gb)" stroke="#14532d" stroke-width="2.5"/>
+      <circle cx="107" cy="67" r="6.5" fill="#fff"/><circle cx="109" cy="67" r="3.2" fill="#1d1a14"/>
+      <path d="M104 80 q6 4 11 -1" stroke="#14532d" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M98 57 Q96 30 82 18 M106 57 Q112 30 128 22" stroke="#14532d" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M86 56 q4 -10 14 -8 l2 6 q-10 -2 -16 2z" fill="#1d1a14"/><rect x="84" y="54" width="22" height="4" rx="2" fill="#1d1a14"/>
+      <circle cx="22" cy="104" r="7" fill="#f2b134" stroke="#b57d16" stroke-width="2"/><circle cx="34" cy="110" r="7" fill="#ffd369" stroke="#b57d16" stroke-width="2"/></svg>`,
     truco: `<svg class="art" viewBox="0 0 100 100"><rect x="26" y="14" width="48" height="68" rx="6" fill="#fff7e6" stroke="#1d1a14" stroke-width="2"/><path d="M50 30c-7 11-18 16-16 25 1 6 8 8 12 3-1 5-3 7-5 9h18c-2-2-4-4-5-9 4 5 11 3 12-3 2-9-9-14-16-25z" fill="#1d1a14"/><text x="31" y="26" font-size="9" font-weight="900" fill="#1d1a14">1</text><path d="M20 86c6-12 4-20 12-24-2 8 4 10 6 16 2-6 8-10 6-18 10 6 10 18 10 26z" fill="#ff8c42" opacity=".95"/><path d="M28 88c3-7 2-12 6-14-1 5 2 6 3 9 1-3 4-6 3-10 5 4 5 10 5 15z" fill="#ffd369"/></svg>`,
     pontinho: `<svg class="art" viewBox="0 0 100 100"><g transform="rotate(-18 50 60)"><rect x="18" y="26" width="40" height="56" rx="5" fill="#fff7e6" stroke="#1d1a14" stroke-width="2"/><circle cx="30" cy="40" r="4" fill="#e5383b"/><circle cx="46" cy="40" r="4" fill="#e5383b"/><circle cx="30" cy="54" r="4" fill="#e5383b"/><circle cx="46" cy="54" r="4" fill="#e5383b"/><circle cx="38" cy="68" r="4" fill="#e5383b"/></g><g transform="rotate(10 60 60)"><rect x="44" y="20" width="40" height="56" rx="5" fill="#fff7e6" stroke="#1d1a14" stroke-width="2"/><circle cx="56" cy="34" r="4" fill="#1d1a14"/><circle cx="72" cy="34" r="4" fill="#1d1a14"/><circle cx="64" cy="48" r="4" fill="#1d1a14"/><circle cx="56" cy="62" r="4" fill="#1d1a14"/><circle cx="72" cy="62" r="4" fill="#1d1a14"/></g></svg>`,
     tressete: `<svg class="art" viewBox="0 0 100 100"><g transform="rotate(-12 40 55)"><rect x="16" y="22" width="42" height="60" rx="5" fill="#fff7e6" stroke="#1d1a14" stroke-width="2"/><text x="37" y="62" text-anchor="middle" font-size="34" font-weight="900" fill="#e5383b" font-family="Arial Black,Arial">3</text></g><g transform="rotate(14 62 50)"><rect x="46" y="16" width="42" height="60" rx="5" fill="#fff7e6" stroke="#1d1a14" stroke-width="2"/><text x="67" y="56" text-anchor="middle" font-size="34" font-weight="900" fill="#1d1a14" font-family="Arial Black,Arial">7</text></g></svg>`,
@@ -88,7 +120,7 @@
   function renderHome() {
     const m = S.match;
     return `
-      <div class="hero">${ART.logo.replace('<svg', '<svg class="logo"')}<h1>Carteado</h1><p>Placar pra marcar o jogo e zoar a gurizada</p></div>
+      <div class="hero">${ART.gafanhoto.replace('<svg', '<svg class="logo"')}<h1>Os Gafanhotos</h1><p>Carteado oficial da turma 🦗</p></div>
       <div class="gamegrid">
         ${Object.entries(GAMES).map(([k, g]) => `<button class="gamecard ${g.cls}" data-new="${k}">${ART[k]}<h3>${g.name}</h3><span>${g.sub}</span></button>`).join('')}
       </div>
@@ -134,10 +166,11 @@
     if (g.teams) {
       body += setup.teams.map((t, i) => `<div class="teambox t${i}"><h3>Dupla ${i + 1}</h3>
         <input data-team="${i}" value="${esc(t.name)}" placeholder="Nome da dupla" maxlength="14">
-        <div class="players"><input data-player="${i}-0" value="${esc(t.players[0])}" placeholder="Jogador 1" maxlength="14" list="names"><input data-player="${i}-1" value="${esc(t.players[1])}" placeholder="Jogador 2" maxlength="14" list="names"></div></div>`).join('');
+        <div class="players"><input data-player="${i}-0" value="${esc(t.players[0])}" placeholder="Jogador 1" maxlength="14" list="names"><input data-player="${i}-1" value="${esc(t.players[1])}" placeholder="Jogador 2" maxlength="14" list="names"></div>
+        <div class="players taglive"><span data-tagfor="${i}-0">${esc(tagOf(t.players[0]))}</span><span data-tagfor="${i}-1">${esc(tagOf(t.players[1]))}</span></div></div>`).join('');
     } else {
       body += `<div class="card dark mb"><div class="field"><label>Jogadores (3 a 8) · todos começam com ${setup.target}</label></div>
-        <div class="playerlist">${setup.players.map((p, i) => `<div class="p"><div class="av" style="background:${avColor(i)}">${initials(p) || i + 1}</div><input data-pl="${i}" value="${esc(p)}" placeholder="Nome" maxlength="14" list="names"><button class="iconbtn" data-rm="${i}"><svg><use href="#i-x"/></svg></button></div>`).join('')}</div>
+        <div class="playerlist">${setup.players.map((p, i) => `<div class="p"><div class="av" style="background:${avColor(i)}">${initials(p) || i + 1}</div><div style="flex:1;display:flex;flex-direction:column;gap:2px"><input data-pl="${i}" value="${esc(p)}" placeholder="Nome" maxlength="14" list="names"><span class="tagline" data-pltag="${i}">${esc(tagOf(p))}</span></div><button class="iconbtn" data-rm="${i}"><svg><use href="#i-x"/></svg></button></div>`).join('')}</div>
         <button class="btn sm ghost mt" data-add>＋ adicionar jogador</button></div>`;
     }
     return `<div class="topbar"><button class="iconbtn" data-home><svg><use href="#i-back"/></svg></button><h2>${g.name}</h2></div>
@@ -199,7 +232,7 @@
         pal = `<div class="meter" style="margin:10px 8px 0"><i style="width:${Math.min(100, s / m.target * 100)}%"></i></div>`;
       }
       return `<div class="teamscore t${i} ${lead === i ? 'leading' : ''} ${danger}" data-ts="${i}">
-        <div class="name">${esc(t.name)}</div><div class="players">${esc(t.players.join(' & '))}</div>
+        <div class="name">${esc(t.name)}</div><div class="players">${nmList(t.players)}</div>
         <div class="num">${s.toLocaleString('pt-BR')}</div>${sub}${pal}</div>`;
     }).join('')}</div>`;
   }
@@ -288,8 +321,8 @@
   function showWin(r) {
     const ov = $('#overlay');
     const loserName = r.loser || 'o resto';
-    ov.innerHTML = `<div class="winbox">${ART.trophy}<div class="kicker">Vencedor${(r.winnerPlayers || []).length > 1 ? 'es' : ''}</div><h1>${esc(r.winner)}</h1>
-      ${r.winnerPlayers && r.winnerPlayers.length ? `<p class="phrase small muted" style="margin:-2px 0 6px">${esc(r.winnerPlayers.join(' & '))}</p>` : ''}
+    ov.innerHTML = `<div class="winbox">${ART.trophy}<div class="kicker">🦗 Gafanhoto${(r.winnerPlayers || []).length > 1 ? 's' : ''} campe${(r.winnerPlayers || []).length > 1 ? 'ões' : 'ão'}</div><h1>${r.winnerPlayers && r.winnerPlayers.length === 1 && r.winnerPlayers[0] === r.winner ? nm(r.winner) : esc(r.winner)}</h1>
+      ${r.winnerPlayers && r.winnerPlayers.length ? `<p class="phrase small muted" style="margin:-2px 0 6px">${nmList(r.winnerPlayers)}</p>` : ''}
       <p class="phrase">${esc(pick(PHRASES.win))}</p><div class="score">${esc(r.score)}</div>
       <div class="row" style="justify-content:center"><button class="btn" data-rematch>Revanche 🔁</button><button class="btn ghost" data-finish>Fechar</button></div>
       <p class="loser">${esc(pick(PHRASES.lose).replace('{l}', loserName))}</p></div>`;
@@ -316,7 +349,7 @@
     const max = Math.max(...alive.map(p => p.score), 0);
     return `<div class="plist">${m.players.map((p, i) => `<div class="prow ${p.out ? 'out' : ''} ${!p.out && p.score === max && alive.length > 1 ? 'lead' : ''} ${!p.out && p.score <= 20 ? 'hot' : ''}" data-pp="${i}">
         <div class="av" style="background:${p.color}">${p.out ? '💀' : initials(p.name)}</div>
-        <div class="n">${esc(p.name)}<small>${p.out ? 'estourou' : p.score <= 20 ? '🔥 na beira do estouro' : p.score === max && alive.length > 1 ? '👑 líder' : '&nbsp;'}</small>
+        <div class="n">${nm(p.name)}<small>${p.out ? 'estourou' : p.score <= 20 ? '🔥 na beira do estouro' : p.score === max && alive.length > 1 ? '👑 líder' : '&nbsp;'}</small>
           <div class="meter"><i style="width:${Math.max(0, p.score) / m.target * 100}%"></i></div></div>
         <div class="pts">${p.out ? 0 : p.score}</div>
         ${p.out && !m.finished ? `<button class="btn sm" data-back="${i}">Voltar</button>` : ''}</div>`).join('')}</div>
@@ -329,7 +362,7 @@
     const m = S.match; const alive = m.players.map((p, i) => ({ ...p, i })).filter(p => !p.out);
     let bateu = -1;
     openSheet(`<h3>Quem bateu e quanto cada um perdeu?</h3>
-      ${alive.map(p => `<div class="handrow" data-hr="${p.i}"><div class="av" style="background:${p.color}">${initials(p.name)}</div><div class="n">${esc(p.name)}<br><small class="muted">tem ${p.score}</small></div>
+      ${alive.map(p => `<div class="handrow" data-hr="${p.i}"><div class="av" style="background:${p.color}">${initials(p.name)}</div><div class="n">${nm(p.name)}<br><small class="muted">tem ${p.score}</small></div>
         <button class="bateu" data-bateu="${p.i}">Bateu</button><input type="number" inputmode="numeric" min="0" max="500" placeholder="0" data-lost="${p.i}"></div>`).join('')}
       <div class="row mt"><button class="btn ghost" data-close>Cancelar</button><button class="btn" data-apply style="flex:1">Lançar mão</button></div>`, sheet => {
       $$('[data-bateu]', sheet).forEach(b => b.onclick = () => {
@@ -497,11 +530,24 @@
     }
     const rank = Object.entries(played).map(([n, p]) => ({ n, p, w: wins[n] || 0 })).sort((a, b) => b.w - a.w || a.p - b.p);
     const medal = i => ['🥇', '🥈', '🥉'][i] || (i + 1);
-    return `<div class="topbar"><h2>🏆 Hall da Fama</h2>${S.history.length ? '<button class="btn sm ghost" data-clear-hist>Limpar</button>' : ''}</div>
-      ${rank.length ? rank.slice(0, 15).map((r, i) => `<div class="hallrow ${i === 0 ? 'first' : ''}"><div class="pos">${medal(i)}</div><div class="n">${esc(r.n)}<small>${r.p} partida${r.p > 1 ? 's' : ''} · ${r.p ? Math.round(r.w / r.p * 100) : 0}% de vitórias</small></div><div class="w">${r.w} 🏆</div></div>`).join('')
+    return `<div class="topbar"><h2>🏆 Hall d'Os Gafanhotos</h2>${S.history.length ? '<button class="btn sm ghost" data-clear-hist>Limpar</button>' : ''}</div>
+      ${rank.length ? rank.slice(0, 15).map((r, i) => `<div class="hallrow ${i === 0 ? 'first' : ''}"><div class="pos">${medal(i)}</div><div class="n">${nm(r.n)}<small>${r.p} partida${r.p > 1 ? 's' : ''} · ${r.p ? Math.round(r.w / r.p * 100) : 0}% de vitórias</small></div><div class="w">${r.w} 🏆</div></div>`).join('')
         : `<div class="card dark center"><p style="font-size:40px;margin:0">🃏</p><p>Ninguém ganhou nada ainda.<br>Termina uma partida pra aparecer aqui.</p></div>`}
       ${S.history.length ? `<h3 class="mt mb" style="font-size:14px;letter-spacing:2px;text-transform:uppercase;opacity:.7">Últimas partidas</h3>
-        ${S.history.slice(0, 30).map(h => `<div class="matchrow"><div class="g ${h.game}">${GAMES[h.game].name.slice(0, 3).toUpperCase()}</div><div><b>${esc(h.winner)}</b> venceu ${esc(h.loser || '')}<br><small class="muted">${esc(h.score)} · ${fmtDate(h.date)}</small></div></div>`).join('')}` : ''}`;
+        ${S.history.slice(0, 30).map(h => `<div class="matchrow"><div class="g ${h.game}">${GAMES[h.game].name.slice(0, 3).toUpperCase()}</div><div><b>${esc(h.winner)}</b> venceu ${esc(h.loser || '')}<br><small class="muted">${esc(h.score)} · ${fmtDate(h.date)}</small></div></div>`).join('')}` : ''}
+      ${renderTags()}`;
+  }
+
+  function renderTags() {
+    const list = Object.entries(S.tags || {});
+    return `<h3 class="mt mb" style="font-size:14px;letter-spacing:2px;text-transform:uppercase;opacity:.7">🦗 Apelidos da turma</h3>
+      <div class="card dark">
+        <p class="small muted" style="margin:0 0 10px">O apelido aparece do lado do nome em todo o app. Fica salvo no celular; use o botão de compartilhar pra mandar pra turma.</p>
+        ${list.length ? list.map(([k, v]) => `<div class="hallrow" style="margin-bottom:6px"><div class="n"><span style="text-transform:capitalize">${esc(k)}</span><small>${esc(v)}</small></div><button class="iconbtn" data-deltag="${esc(k)}"><svg><use href="#i-x"/></svg></button></div>`).join('') : '<p class="small muted">Nenhum apelido ainda.</p>'}
+        <div class="row mt"><input data-tagname placeholder="Nome" maxlength="14" list="names" style="flex:1;min-width:0;padding:11px;border-radius:12px;border:0;font-weight:700"><input data-tagval placeholder="Apelido" maxlength="24" style="flex:1.3;min-width:0;padding:11px;border-radius:12px;border:0;font-weight:700"></div>
+        <datalist id="names">${S.names.map(n => `<option value="${esc(n)}">`).join('')}</datalist>
+        <div class="row mt"><button class="btn sm" data-addtag>＋ Salvar apelido</button><span class="spacer"></span><button class="btn sm ghost" data-sharetags>📤 Mandar pra turma</button></div>
+      </div>`;
   }
 
   // ========== REGRAS ==========
@@ -527,8 +573,8 @@
       Sound.click(); render();
     }));
     $$('[data-team]').forEach(i => i.oninput = () => setup.teams[+i.dataset.team].name = i.value);
-    $$('[data-player]').forEach(i => i.oninput = () => { const [t, p] = i.dataset.player.split('-'); setup.teams[+t].players[+p] = i.value; });
-    $$('[data-pl]').forEach(i => i.oninput = () => setup.players[+i.dataset.pl] = i.value);
+    $$('[data-player]').forEach(i => i.oninput = () => { const [t, p] = i.dataset.player.split('-'); setup.teams[+t].players[+p] = i.value; const sp = $(`[data-tagfor="${t}-${p}"]`); if (sp) sp.textContent = tagOf(i.value); });
+    $$('[data-pl]').forEach(i => i.oninput = () => { setup.players[+i.dataset.pl] = i.value; const sp = $(`[data-pltag="${i.dataset.pl}"]`); if (sp) sp.textContent = tagOf(i.value); });
     $$('[data-rm]').forEach(b => b.onclick = () => { setup.players.splice(+b.dataset.rm, 1); render(); });
     const add = $('[data-add]'); if (add) add.onclick = () => { if (setup.players.length >= 8) return toast('Máximo 8 jogadores'); setup.players.push(''); render(); setTimeout(() => { const ins = $$('[data-pl]'); ins[ins.length - 1].focus(); }, 50); };
     const st = $('[data-start]'); if (st) st.onclick = startMatch;
@@ -550,6 +596,19 @@
 
     // hall
     const ch = $('[data-clear-hist]'); if (ch) ch.onclick = () => { if (confirm('Apagar todo o histórico?')) { S.history = []; render(); } };
+
+    // apelidos
+    const at = $('[data-addtag]'); if (at) at.onclick = () => {
+      const n = norm($('[data-tagname]').value), v = $('[data-tagval]').value.trim();
+      if (!n || !v) return toast('Preenche nome e apelido');
+      S.tags = { ...(S.tags || {}), [n]: v }; Sound.point(); render(); toast('Apelido salvo 🦗');
+    };
+    $$('[data-deltag]').forEach(b => b.onclick = () => { delete S.tags[b.dataset.deltag]; render(); });
+    const sh = $('[data-sharetags]'); if (sh) sh.onclick = async () => {
+      const url = shareTagsLink(), text = 'Apelidos d\'Os Gafanhotos 🦗 — abre no celular:';
+      try { if (navigator.share) { await navigator.share({ title: 'Os Gafanhotos', text, url }); return; } } catch (e) { return; }
+      try { await navigator.clipboard.writeText(url); toast('Link copiado! Manda no grupo 📋'); } catch (e) { prompt('Copia o link:', url); }
+    };
 
     // rules
     $$('[data-rg]').forEach(b => b.onclick = () => { S.rulesGame = b.dataset.rg; Sound.click(); render(); });
@@ -576,6 +635,8 @@
   }
 
   // ---------- start ----------
+  if (!S.tags) S.tags = { ...DEFAULT.tags };
+  importTagsFromHash();
   if (S.view === 'setup') S.view = 'home';
   if (S.view === 'game' && (!S.match || S.match.finished)) S.view = 'home';
   render();

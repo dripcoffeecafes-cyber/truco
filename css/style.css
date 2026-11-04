@@ -362,3 +362,11 @@ h1, h2, h3 { margin: 0; font-family: var(--font-display); letter-spacing: .5px; 
   .app.no-tabs .tabbar { transform: translateX(-50%) translateY(120%); }
   .teamscore .num { font-size: 84px; }
 }
+
+/* apelidos */
+.tag { font-style: normal; font-weight: 900; font-size: .72em; background: var(--gold); color: var(--ink); padding: 1px 7px; border-radius: 99px; margin-left: 4px; white-space: nowrap; vertical-align: middle; }
+.teamscore .players .tag { font-size: 10px; }
+.winbox h1 .tag { font-size: 16px; }
+.taglive { margin-top: 4px !important; }
+.taglive span, .tagline { flex: 1; font-size: 11px; font-weight: 900; color: var(--gold-2); min-height: 13px; padding-left: 4px; }
+.teamscore .players { white-space: normal; line-height: 1.5; }

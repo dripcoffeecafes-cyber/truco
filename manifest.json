@@ -1,6 +1,6 @@
 {
-  "name": "Carteado — placar de baralho",
-  "short_name": "Carteado",
+  "name": "Os Gafanhotos — carteado da turma",
+  "short_name": "Gafanhotos",
   "description": "Placar divertido pra marcar Truco, Pontinho, Três Sete e Canastra com os amigos. Funciona offline.",
   "start_url": "./index.html",
   "scope": "./",

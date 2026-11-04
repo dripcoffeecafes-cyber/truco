@@ -147,3 +147,26 @@ const Sound = (() => {
   };
   return S;
 })();
+
+/* ---------- VOZ (síntese de fala do próprio celular) ---------- */
+const Voice = (() => {
+  const synth = window.speechSynthesis;
+  let voice = null;
+  function pickVoice() {
+    if (!synth) return;
+    const vs = synth.getVoices();
+    voice = vs.find(v => /pt-BR/i.test(v.lang) && /google|luciana|felipe|daniel/i.test(v.name)) || vs.find(v => /pt-BR/i.test(v.lang)) || vs.find(v => /^pt/i.test(v.lang)) || null;
+  }
+  if (synth) { pickVoice(); synth.onvoiceschanged = pickVoice; }
+  return {
+    say(text) {
+      if (!synth || !Sound.enabled) return;
+      const clean = String(text).replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\uFE0F]/gu, '').trim();
+      if (!clean) return;
+      synth.cancel();
+      const u = new SpeechSynthesisUtterance(clean);
+      u.lang = 'pt-BR'; if (voice) u.voice = voice; u.rate = 1.05; u.pitch = 1.1;
+      synth.speak(u);
+    }
+  };
+})();

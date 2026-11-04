@@ -367,6 +367,14 @@ h1, h2, h3 { margin: 0; font-family: var(--font-display); letter-spacing: .5px; 
 .tag { font-style: normal; font-weight: 900; font-size: .72em; background: var(--gold); color: var(--ink); padding: 1px 7px; border-radius: 99px; margin-left: 4px; white-space: nowrap; vertical-align: middle; }
 .teamscore .players .tag { font-size: 10px; }
 .winbox h1 .tag { font-size: 16px; }
-.taglive { margin-top: 4px !important; }
-.taglive span, .tagline { flex: 1; font-size: 11px; font-weight: 900; color: var(--gold-2); min-height: 13px; padding-left: 4px; }
+.namewrap { position: relative; flex: 1; min-width: 0; display: block; }
+.namewrap input { width: 100%; }
+.namewrap .intag { position: absolute; right: 6px; top: -9px; pointer-events: none; box-shadow: 0 2px 6px rgba(0,0,0,.3);
+  font-size: 10px; font-weight: 900; background: var(--gold); color: var(--ink); padding: 2px 7px; border-radius: 99px;
+  max-width: 62%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.namewrap .intag:empty { display: none; }
+.playerlist .p .namewrap input { flex: none; }
 .teamscore .players { white-space: normal; line-height: 1.5; }
+
+.teambox .players { margin-top: 12px; }
+.playerlist { gap: 14px; }

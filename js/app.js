@@ -23,12 +23,26 @@
 
   // ---------- estado ----------
   const KEY = 'carteado:v1';
-  const DEFAULT = { tab: 'home', view: 'home', match: null, history: [], names: [], rulesGame: 'truco', tags: { adriano: 'aqui é Macho 💪' } };
+  const DEFAULT = { tab: 'home', view: 'home', match: null, history: [], names: [], rulesGame: 'truco', tags: {} };
   let S = load();
   function load() { try { return { ...DEFAULT, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch (e) { return { ...DEFAULT }; } }
   // ---------- apelidos da turma ----------
   const norm = n => String(n || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  const tagOf = n => (S.tags || {})[norm(n)] || '';
+  // Apelidos fixos da turma — edite aqui pra mudar pra todo mundo
+  const APELIDOS = {
+    adriano: 'aqui é Macho 💪'
+  };
+  const tagOf = n => (S.tags || {})[norm(n)] || APELIDOS[norm(n)] || '';
+  // Voz: fala o nome + apelido quando termina de digitar
+  let sayTimer = null, lastSaid = '';
+  function sayName(name) {
+    clearTimeout(sayTimer);
+    sayTimer = setTimeout(() => {
+      const tag = tagOf(name); const key = norm(name) + '|' + tag;
+      if (!tag || key === lastSaid) return;
+      lastSaid = key; Voice.say(`${name.trim()}, ${tag}`);
+    }, 700);
+  }
   const nm = n => `${esc(n)}${tagOf(n) ? ` <em class="tag">${esc(tagOf(n))}</em>` : ''}`;
   const nmList = (list, sep = ' & ') => list.map(nm).join(sep);
   function importTagsFromHash() {
@@ -166,11 +180,10 @@
     if (g.teams) {
       body += setup.teams.map((t, i) => `<div class="teambox t${i}"><h3>Dupla ${i + 1}</h3>
         <input data-team="${i}" value="${esc(t.name)}" placeholder="Nome da dupla" maxlength="14">
-        <div class="players"><input data-player="${i}-0" value="${esc(t.players[0])}" placeholder="Jogador 1" maxlength="14" list="names"><input data-player="${i}-1" value="${esc(t.players[1])}" placeholder="Jogador 2" maxlength="14" list="names"></div>
-        <div class="players taglive"><span data-tagfor="${i}-0">${esc(tagOf(t.players[0]))}</span><span data-tagfor="${i}-1">${esc(tagOf(t.players[1]))}</span></div></div>`).join('');
+        <div class="players">${[0, 1].map(j => `<label class="namewrap"><input data-player="${i}-${j}" value="${esc(t.players[j])}" placeholder="Jogador ${j + 1}" maxlength="14" list="names"><span class="intag" data-tagfor="${i}-${j}">${esc(tagOf(t.players[j]))}</span></label>`).join('')}</div></div>`).join('');
     } else {
       body += `<div class="card dark mb"><div class="field"><label>Jogadores (3 a 8) · todos começam com ${setup.target}</label></div>
-        <div class="playerlist">${setup.players.map((p, i) => `<div class="p"><div class="av" style="background:${avColor(i)}">${initials(p) || i + 1}</div><div style="flex:1;display:flex;flex-direction:column;gap:2px"><input data-pl="${i}" value="${esc(p)}" placeholder="Nome" maxlength="14" list="names"><span class="tagline" data-pltag="${i}">${esc(tagOf(p))}</span></div><button class="iconbtn" data-rm="${i}"><svg><use href="#i-x"/></svg></button></div>`).join('')}</div>
+        <div class="playerlist">${setup.players.map((p, i) => `<div class="p"><div class="av" style="background:${avColor(i)}">${initials(p) || i + 1}</div><label class="namewrap"><input data-pl="${i}" value="${esc(p)}" placeholder="Nome" maxlength="14" list="names"><span class="intag" data-pltag="${i}">${esc(tagOf(p))}</span></label><button class="iconbtn" data-rm="${i}"><svg><use href="#i-x"/></svg></button></div>`).join('')}</div>
         <button class="btn sm ghost mt" data-add>＋ adicionar jogador</button></div>`;
     }
     return `<div class="topbar"><button class="iconbtn" data-home><svg><use href="#i-back"/></svg></button><h2>${g.name}</h2></div>
@@ -539,7 +552,7 @@
   }
 
   function renderTags() {
-    const list = Object.entries(S.tags || {});
+    const list = Object.entries({ ...APELIDOS, ...(S.tags || {}) });
     return `<h3 class="mt mb" style="font-size:14px;letter-spacing:2px;text-transform:uppercase;opacity:.7">🦗 Apelidos da turma</h3>
       <div class="card dark">
         <p class="small muted" style="margin:0 0 10px">O apelido aparece do lado do nome em todo o app. Fica salvo no celular; use o botão de compartilhar pra mandar pra turma.</p>
@@ -573,8 +586,8 @@
       Sound.click(); render();
     }));
     $$('[data-team]').forEach(i => i.oninput = () => setup.teams[+i.dataset.team].name = i.value);
-    $$('[data-player]').forEach(i => i.oninput = () => { const [t, p] = i.dataset.player.split('-'); setup.teams[+t].players[+p] = i.value; const sp = $(`[data-tagfor="${t}-${p}"]`); if (sp) sp.textContent = tagOf(i.value); });
-    $$('[data-pl]').forEach(i => i.oninput = () => { setup.players[+i.dataset.pl] = i.value; const sp = $(`[data-pltag="${i.dataset.pl}"]`); if (sp) sp.textContent = tagOf(i.value); });
+    $$('[data-player]').forEach(i => i.oninput = () => { const [t, p] = i.dataset.player.split('-'); setup.teams[+t].players[+p] = i.value; const sp = $(`[data-tagfor="${t}-${p}"]`); if (sp) sp.textContent = tagOf(i.value); sayName(i.value); });
+    $$('[data-pl]').forEach(i => i.oninput = () => { setup.players[+i.dataset.pl] = i.value; const sp = $(`[data-pltag="${i.dataset.pl}"]`); if (sp) sp.textContent = tagOf(i.value); sayName(i.value); });
     $$('[data-rm]').forEach(b => b.onclick = () => { setup.players.splice(+b.dataset.rm, 1); render(); });
     const add = $('[data-add]'); if (add) add.onclick = () => { if (setup.players.length >= 8) return toast('Máximo 8 jogadores'); setup.players.push(''); render(); setTimeout(() => { const ins = $$('[data-pl]'); ins[ins.length - 1].focus(); }, 50); };
     const st = $('[data-start]'); if (st) st.onclick = startMatch;
@@ -603,7 +616,7 @@
       if (!n || !v) return toast('Preenche nome e apelido');
       S.tags = { ...(S.tags || {}), [n]: v }; Sound.point(); render(); toast('Apelido salvo 🦗');
     };
-    $$('[data-deltag]').forEach(b => b.onclick = () => { delete S.tags[b.dataset.deltag]; render(); });
+    $$('[data-deltag]').forEach(b => b.onclick = () => { const k = b.dataset.deltag; if (S.tags[k]) delete S.tags[k]; else if (APELIDOS[k]) return toast('Esse é fixo do app 😎'); render(); });
     const sh = $('[data-sharetags]'); if (sh) sh.onclick = async () => {
       const url = shareTagsLink(), text = 'Apelidos d\'Os Gafanhotos 🦗 — abre no celular:';
       try { if (navigator.share) { await navigator.share({ title: 'Os Gafanhotos', text, url }); return; } } catch (e) { return; }
